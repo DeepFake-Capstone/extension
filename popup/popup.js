@@ -6,6 +6,8 @@ const statusMessage = document.getElementById('status-message');
 const closeButton = document.getElementById('close-button');
 const popupContainer = document.getElementById('popup-container');
 
+
+
 // Drag-and-drop functionality
 dropZone.addEventListener('dragover', (e) => {
   e.preventDefault();
@@ -27,17 +29,26 @@ dropZone.addEventListener('drop', (e) => {
   }
 });
 
-// Close button functionality
+// Close button functionality - removes the image from the drop zone without closing the popup
 closeButton.addEventListener('click', () => {
-  popupContainer.style.display = 'none'; // Hides the popup
+  if (selectedFile) {
+    // Reset the drop zone and selected file when the close button is clicked
+    selectedFile = null;
+    dropZone.textContent = 'Drag and drop an image here'; // Reset the text
+    checkButton.disabled = true; // Disable the check button again
+    statusMessage.textContent = ''; // Clear any status message
+  }
+  // Close the popup when the close button is clicked
+  window.close();
 });
 
 // Prevent the popup from closing on outside clicks
-document.addEventListener('click', (e) => {
-  if (!popupContainer.contains(e.target) && e.target !== closeButton) {
-    e.stopPropagation(); // Prevents accidental dismissal
-  }
+popupContainer.addEventListener('click', (e) => {
+  e.stopPropagation(); // Prevents accidental dismissal of the popup
 });
+
+// Remove the click event listener from the document that was closing the popup
+// As we no longer need to prevent clicking outside, we can remove the code handling it here
 
 // API call
 checkButton.addEventListener('click', async () => {
@@ -66,14 +77,33 @@ checkButton.addEventListener('click', async () => {
         const dominantClass = scoreFake > scoreReal ? "Fake" : "Real";
         const dominantScore = scoreFake > scoreReal ? scoreFake : scoreReal;
 
-        statusMessage.innerHTML = `
-          Prediction: <strong>${dominantClass}</strong><br>
-          Confidence: ${dominantScore}%
-        `;
+        // Apply color based on prediction
+        if (dominantClass === "Fake") {
+          statusMessage.innerHTML = `
+            Prediction: <strong style="color: red;">${dominantClass}</strong><br>
+            Confidence: <span style="color: red;">${dominantScore}%</span>
+          `;
+        } else {
+          statusMessage.innerHTML = `
+            Prediction: <strong style="color: green;">${dominantClass}</strong><br>
+            Confidence: <span style="color: green;">${dominantScore}%</span>
+          `;
+        }
       }
     } catch (error) {
       statusMessage.textContent = 'Error checking image.';
       console.error(error);
     }
+  }
+});
+
+// Clicking the drop zone when an image is selected will reset the drop zone
+dropZone.addEventListener('click', () => {
+  if (selectedFile) {
+    // Reset the drop zone and selected file
+    selectedFile = null;
+    dropZone.textContent = 'Drag and drop an image here';
+    checkButton.disabled = true;
+    statusMessage.textContent = '';
   }
 });
