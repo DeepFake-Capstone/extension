@@ -27,29 +27,16 @@ dropZone.addEventListener('drop', (e) => {
   }
 });
 
-// Close button functionality - removes the image from the drop zone without closing the popup
+// Close button functionality
 closeButton.addEventListener('click', () => {
-  if (selectedFile) {
-    // Reset the drop zone and selected file when the close button is clicked
-    selectedFile = null;
-    dropZone.textContent = 'Drag and drop an image here'; // Reset the text
-    checkButton.disabled = true; // Disable the check button again
-    statusMessage.textContent = ''; // Clear any status message
-  }
-  
-  // Close the extension popup
-  window.close();
-  // Open a new window (normal_popup.html) with specific size
-  const popupWindow = window.open(
-    chrome.extension.getURL("normal_popup.html"),
-    "exampleName",
-    "width=400,height=400"
-  );
+  popupContainer.style.display = 'none'; // Hides the popup
 });
 
 // Prevent the popup from closing on outside clicks
-popupContainer.addEventListener('click', (e) => {
-  e.stopPropagation(); // Prevents accidental dismissal of the popup
+document.addEventListener('click', (e) => {
+  if (!popupContainer.contains(e.target) && e.target !== closeButton) {
+    e.stopPropagation(); // Prevents accidental dismissal
+  }
 });
 
 // API call
@@ -79,33 +66,14 @@ checkButton.addEventListener('click', async () => {
         const dominantClass = scoreFake > scoreReal ? "Fake" : "Real";
         const dominantScore = scoreFake > scoreReal ? scoreFake : scoreReal;
 
-        // Apply color based on prediction
-        if (dominantClass === "Fake") {
-          statusMessage.innerHTML = `
-            Prediction: <strong style="color: red;">${dominantClass}</strong><br>
-            Confidence: <span style="color: red;">${dominantScore}%</span>
-          `;
-        } else {
-          statusMessage.innerHTML = `
-            Prediction: <strong style="color: green;">${dominantClass}</strong><br>
-            Confidence: <span style="color: green;">${dominantScore}%</span>
-          `;
-        }
+        statusMessage.innerHTML = `
+          Prediction: <strong>${dominantClass}</strong><br>
+          Confidence: ${dominantScore}%
+        `;
       }
     } catch (error) {
       statusMessage.textContent = 'Error checking image.';
       console.error(error);
     }
-  }
-});
-
-// Clicking the drop zone when an image is selected will reset the drop zone
-dropZone.addEventListener('click', () => {
-  if (selectedFile) {
-    // Reset the drop zone and selected file
-    selectedFile = null;
-    dropZone.textContent = 'Drag and drop an image here';
-    checkButton.disabled = true;
-    statusMessage.textContent = '';
   }
 });

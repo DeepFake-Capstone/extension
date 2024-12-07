@@ -3,14 +3,15 @@
   "name": "Fake Image Detector",
   "version": "1.0",
   "description": "Drag and drop images to detect if they are fake.",
-  "permissions": ["activeTab", "scripting", "storage"],
+  "permissions": ["activeTab", "storage"],
   "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "background/background.js"
   },
   "action": {
+    "default_popup": "popup/popup.html",
     "default_icon": "assets/logo.png",
-    "default_title": "Click to open Fake Image Detector"
+    "default_title": "Fake Image Detector"
   },
   "icons": {
     "16": "assets/logo.png",
